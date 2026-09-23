@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(lsof -nP -iTCP:17890 -sTCP:LISTEN)",
+      "Bash(curl -s -o /dev/null -m 6 -w \"apple.com HTTP %{http_code} \\(%{time_total}s\\)\\\\n\" https://www.apple.com)",
+      "WebSearch",
+      "Bash(git config --list)",
+      "Bash(git config --list *)",
+      "Bash(git config --get *)",
+      "Bash(git config --get-all *)",
+      "Bash(~/.cargo/bin/codewhale --version)",
+      "Bash(python3 -)",
+      "Read(//Applications/**)",
+      "Read(//Applications/Xcode.app/Contents/**)",
+      "Bash(codesign -dvvv /Applications/Xcode.app)",
+      "Bash(codesign -d --entitlements :- /Applications/Xcode.app)",
+      "Bash(xattr ~/Xcode-cn.app)",
+      "Bash(codesign --verify --verbose=2 ~/Xcode-cn.app)",
+      "Bash(cp -R ~/Xcode-cn.app/Contents/Resources/en.lproj/MainMenu.nib /tmp/mm_test.nib)",
+      "Read(//tmp/**)",
+      "Bash(xxd)",
+      "Bash(codewhale --version)",
+      "Bash(shasum -a 256 ~/.claude/settings.json)",
+      "Bash(python3 -c ' *)",
+      "Bash(claude doctor *)",
+      "Bash(echo \"doctor exit=$?\")",
+      "Bash(python3 theme.py --help)",
+      "Bash(file *)",
+      "Bash(python3 -c \"import build123d,sys;print\\('build123d',build123d.__version__ if hasattr\\(build123d,'__version__'\\) else '?', sys.executable\\)\")",
+      "Bash(python3 -m pip list)",
+      "Bash(awk '{print $3}')",
+      "Bash(curl -sI https://mtodalisneakers.com/yupoo/_web/index.html --max-time 20)",
+      "Bash(nc -z -G 2 127.0.0.1 17890)",
+      "Bash(networksetup -getdnsservers Wi-Fi)",
+      "Bash(scutil --proxy)"
+    ]
+  }
+}

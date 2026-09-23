@@ -1,0 +1,28 @@
+{
+  "name": "Dracula",
+  "base": "dark",
+  "overrides": {
+    "claude": "#bd93f9",
+    "text": "#f8f8f2",
+    "inactive": "#6272a4",
+    "subtle": "#8a8eaa",
+    "suggestion": "#8be9fd",
+    "permission": "#f1fa8c",
+    "remember": "#8ce9fd",
+    "success": "#50fa7b",
+    "error": "#ff5555",
+    "warning": "#f1fa8c",
+    "merged": "#bd93f9",
+    "promptBorder": "#44475a",
+    "planMode": "#ffb96c",
+    "autoAccept": "#ffb86c",
+    "bashBorder": "#ffb86c",
+    "ide": "#8be9fd",
+    "diffAdded": "#213a2a",
+    "diffRemoved": "#3a1f22",
+    "userMessageBackground": "#343746",
+    "selectionBg": "#44475a",
+    "briefLabelYou": "#8be9fd",
+    "briefLabelClaude": "#bd93f9"
+  }
+}
