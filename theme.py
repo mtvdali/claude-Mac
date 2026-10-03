@@ -8,13 +8,17 @@ Claude Code 主题配置助手 —— 对标 CodeWhale 的 /theme
   python3 ~/.claude/theme.py --set dark       # 切换主题（写入前自动备份）
   python3 ~/.claude/theme.py --revert         # 从最近一次本工具备份恢复 theme
   python3 ~/.claude/theme.py --json           # 机器可读输出
-  python3 ~/.claude/theme.py --settings <路径> # 指定 settings.json（测试用）
+  python3 ~/.claude/theme.py --settings <路径> # 指定配置文件（测试用，默认 ~/.claude.json）
 
 已在本机 Claude Code v2.1.258 二进制中核实的事实：
   · 内置主题 id（共 6 个）：dark / light / dark-ansi / light-ansi /
     dark-daltonized / light-daltonized
     实证来源：`RRn=["dark","light","light-daltonized","dark-daltonized","light-ansi","dark-ansi"]`
-  · **自定义主题的 settings 取值 = `custom:<slug>`**（slug 即主题文件名去掉 .json）。实证来源：
+  · **写入位置 = `~/.claude.json`（globalConfig）的顶层 `theme`，不是 settings.json！**
+    实证来源（v2.1.258，store 初始化）：`themeSetting: i.theme` 取自 globalConfig，
+    而 `currentLanguage: e?.language` 才取自 settingsData。settings.json 的 zod schema 里
+    **确实**定义了 theme 字段，但它不在 TUI 主题 store 的读取路径上 —— **schema 存在 ≠ 生效**。
+  · **取值 = `custom:<slug>`**（slug 即主题文件名去掉 .json）。实证来源：
       function k9(e){return `${k}${e}`}                     // k = "custom:"
       function aT(e){return e.startsWith(k)?e.slice(k.length):null}
       theme: We([ee(cCt), i().startsWith("custom:").transform(r=>r)]).optional().catch(void 0)
@@ -37,9 +41,11 @@ import sys
 from datetime import datetime
 
 HOME = os.path.expanduser("~")
-DEFAULT_SETTINGS = os.path.join(HOME, ".claude", "settings.json")
+# ★ 主题存在 globalConfig（~/.claude.json）里，不在 settings.json 里。
+# 详见 ~/.claude/projects/-Users-ootd/memory/claude-code-theme-mechanism.md
+DEFAULT_SETTINGS = os.path.join(HOME, ".claude.json")
 THEMES_DIR = os.path.join(HOME, ".claude", "themes")
-BACKUP_PREFIX = "settings.json.bak-theme-"
+BACKUP_PREFIX = "claude.json.bak-theme-"
 
 # 已实证的内置主题 id（顺序即设置面板里的呈现顺序：深色 / 浅色 / 深色 ANSI / 浅色 ANSI / 色盲友好）
 BUILTIN_THEMES = [
@@ -288,6 +294,13 @@ def cmd_set(settings_path, value, as_json, paint, dry_run=False):
     print(f"{paint('已切换', GREEN)}：{resolved}")
     print(f"{paint('备份', DIM)}：{backup}")
     print(paint("重启 claude 会话后生效（TUI 内也可用 /theme 即时切换）。", DIM))
+    print(
+        paint(
+            "⚠️ ~/.claude.json 由 CLI 常驻进程持有，正在运行的会话退出时可能把它覆写回去；"
+            "改完请在 TUI 里确认，或直接用 TUI 的 /theme 切换。",
+            YELLOW,
+        )
+    )
     return 0
 
 
@@ -346,7 +359,13 @@ def main():
     parser.add_argument("--revert", action="store_true", help="从最近一次备份恢复 theme")
     parser.add_argument("--dry-run", action="store_true", help="只展示改动，不写盘")
     parser.add_argument("--json", action="store_true", help="机器可读输出")
-    parser.add_argument("--settings", default=DEFAULT_SETTINGS, help="settings.json 路径")
+    parser.add_argument(
+        "--settings",
+        "--config",
+        dest="settings",
+        default=DEFAULT_SETTINGS,
+        help="配置文件路径（默认 ~/.claude.json；主题存在这里，不在 settings.json）",
+    )
     parser.add_argument("--no-color", action="store_true", help="禁用彩色输出")
     args = parser.parse_args()
 
@@ -363,7 +382,7 @@ def main():
             return cmd_set(args.settings, args.set, args.json, paint, args.dry_run)
         return cmd_list(args.settings, args.json, paint)
     except json.JSONDecodeError as exc:
-        print(f"{paint('settings.json 不是合法 JSON', RED)}：{exc}", file=sys.stderr)
+        print(f"{paint('配置文件不是合法 JSON', RED)}：{exc}", file=sys.stderr)
         return 2
 
 

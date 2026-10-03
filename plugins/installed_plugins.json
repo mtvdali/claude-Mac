@@ -4,7 +4,7 @@
     "rust-analyzer-lsp@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/ootd/.claude/plugins/cache/claude-plugins-official/rust-analyzer-lsp/1.0.0",
+        "installPath": "~/.claude/plugins/cache/claude-plugins-official/rust-analyzer-lsp/1.0.0",
         "version": "1.0.0",
         "installedAt": "2026-09-12T12:58:04.325Z",
         "lastUpdated": "2026-09-12T12:58:04.325Z",

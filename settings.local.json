@@ -32,7 +32,9 @@
       "Bash(curl -sI https://mtodalisneakers.com/yupoo/_web/index.html --max-time 20)",
       "Bash(nc -z -G 2 127.0.0.1 17890)",
       "Bash(networksetup -getdnsservers Wi-Fi)",
-      "Bash(scutil --proxy)"
+      "Bash(scutil --proxy)",
+      "WebFetch(domain:agent-git.com)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }

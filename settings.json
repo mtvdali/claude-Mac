@@ -1,11 +1,22 @@
 {
+  "autoUpdates": false,
+  "awaySummaryEnabled": false,
+  "enabledPlugins": {
+    "rust-analyzer-lsp@claude-plugins-official": true
+  },
   "env": {
     "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
-    "ANTHROPIC_AUTH_TOKEN": "<REDACTED: 见本机 ~/.claude/settings.json>",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "deepseek-v4-flash[1m]",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-v4-flash[1m]",
+    "ANTHROPIC_DEFAULT_MODEL": "deepseek-v4-flash[1m]",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-v4-flash[1m]",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-v4-flash[1m]",
     "ANTHROPIC_MODEL": "deepseek-v4-flash[1m]",
     "ANTHROPIC_SMALL_FAST_MODEL": "deepseek-v4-flash[1m]",
-    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "786432"
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "786432",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "deepseek-v4-flash[1m]"
   },
+  "language": "Chinese",
   "permissions": {
     "allow": [
       "Read",
@@ -21,29 +32,33 @@
       "Bash(~/.pyenv/versions/3.11.0/bin/python3 ~/Desktop/Discord自动聊天/配频道.py)",
       "Bash(ssh -i ~/.ssh/<私钥> root@<服务器IP> *)"
     ],
-    "deny": [],
-    "ask": []
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "python3 ~/.claude/statusline.py",
-    "padding": 0
-  },
-  "theme": "custom:dracula",
-  "language": "Chinese",
-  "spinnerVerbs": {
-    "mode": "replace",
-    "verbs": [
-      "思考中",
-      "分析中",
-      "推敲中",
-      "梳理中",
-      "查证中",
-      "酝酿中",
-      "推演中",
-      "核对中"
+    "ask": [],
+    "defaultMode": "acceptEdits",
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~)",
+      "Bash(rm -rf ~/*)",
+      "Bash(rm -rf ~/Desktop)",
+      "Bash(rm -rf ~/Pictures)",
+      "Bash(rm -rf ~/Library)",
+      "Bash(rm -rf ~/.claude)",
+      "Bash(rm -rf ~/.codex)",
+      "Bash(rm -rf ~/.ssh)",
+      "Bash(sudo rm *)",
+      "Bash(mkfs*)",
+      "Bash(dd if=* of=/dev/*)",
+      "Bash(diskutil eraseDisk*)",
+      "Bash(cat ~/.ssh/*)",
+      "Bash(cat ~/.codex/auth.json)",
+      "Bash(cat ~/.claude/settings.json)",
+      "Bash(open http*)",
+      "Bash(open https*)",
+      "Bash(open -a Safari*)",
+      "WebSearch"
     ]
   },
+  "showThinkingSummaries": true,
   "spinnerTipsOverride": {
     "excludeDefault": true,
     "tips": [
@@ -57,10 +72,23 @@
       "输入 # 可快速追加记忆"
     ]
   },
-  "awaySummaryEnabled": false,
-  "showThinkingSummaries": true,
-  "autoUpdates": false,
-  "enabledPlugins": {
-    "rust-analyzer-lsp@claude-plugins-official": true
-  }
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "思考中",
+      "分析中",
+      "推敲中",
+      "梳理中",
+      "查证中",
+      "酝酿中",
+      "推演中",
+      "核对中"
+    ]
+  },
+  "statusLine": {
+    "command": "python3 ~/.claude/statusline.py",
+    "padding": 0,
+    "type": "command"
+  },
+  "apiKeyHelper": "~/.claude/api-key-helper.sh"
 }
