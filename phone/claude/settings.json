@@ -1,0 +1,110 @@
+{
+  "apiKeyHelper": "/data/data/com.termux/files/home/.claude/api-key-helper.sh",
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
+    "ANTHROPIC_MODEL": "claude-sonnet-5-5",
+    "ANTHROPIC_DEFAULT_MODEL": "claude-sonnet-5-5",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-sonnet-5-5",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-5-5",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-sonnet-5-5",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "claude-sonnet-5-5",
+    "ANTHROPIC_SMALL_FAST_MODEL": "claude-sonnet-5-5",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "claude-sonnet-5-5",
+    "CLAUDE_CODE_MAX_CONTEXT_TOKENS": "1000000",
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "900000",
+    "BASH_DEFAULT_TIMEOUT_MS": "300000",
+    "BASH_MAX_TIMEOUT_MS": "900000",
+    "DISABLE_AUTOUPDATER": "1",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1",
+    "DISABLE_TELEMETRY": "1",
+    "DISABLE_ERROR_REPORTING": "1"
+  },
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash",
+      "WebFetch",
+      "TodoWrite",
+      "NotebookEdit",
+      "Task",
+      "Edit(/**)"
+    ],
+    "ask": [
+      "Bash(sudo:*)",
+      "Bash(pkg install:*)",
+      "Bash(pkg upgrade:*)",
+      "Bash(apt:*)",
+      "Bash(apt-get:*)",
+      "Bash(git push:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~)",
+      "Bash(rm -rf ~/*)",
+      "Bash(rm -rf /data/data/com.termux/*)",
+      "Bash(rm -rf /sdcard/*)",
+      "Bash(rm -rf /storage/emulated/0/*)",
+      "Bash(sudo rm:*)",
+      "Bash(mkfs:*)",
+      "Bash(dd:*)",
+      "Bash(proot-distro remove:*)",
+      "Bash(proot-distro reset:*)",
+      "Read(./.env)",
+      "Read(**/.env)",
+      "Read(**/.ssh/**)",
+      "Read(**/*.pem)",
+      "Read(**/id_rsa*)",
+      "Read(/**/.claude/.secrets/**)",
+      "Read(**/.codex/auth.json)",
+      "WebSearch"
+    ],
+    "additionalDirectories": [
+      "/sdcard",
+      "/tmp"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "/data/data/com.termux/files/home/.claude/statusline-fast.sh",
+    "padding": 0
+  },
+  "language": "Chinese",
+  "awaySummaryEnabled": false,
+  "showThinkingSummaries": true,
+  "autoUpdates": false,
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "思考中",
+      "分析中",
+      "推敲中",
+      "梳理中",
+      "查证中",
+      "酝酿中",
+      "推演中",
+      "核对中"
+    ]
+  },
+  "spinnerTipsOverride": {
+    "excludeDefault": true,
+    "tips": [
+      "输入 / 查看所有命令",
+      "按 Ctrl+K 打开命令面板",
+      "按 Esc 可中断当前生成",
+      "Shift+Tab 切换 Plan / Agent 模式",
+      "输入 @ 引用文件路径",
+      "Ctrl+R 恢复历史会话",
+      "「思考中」按 Ctrl+O 可展开查看",
+      "输入 # 可快速追加记忆"
+    ]
+  }
+}

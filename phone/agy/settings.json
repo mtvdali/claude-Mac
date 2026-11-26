@@ -1,0 +1,44 @@
+{
+  "colorScheme": "dark",
+  "copyOnSelect": false,
+  "language": "zh_CN",
+  "model": "Gemini 3.8 Flash (High)",
+  "modelProvider": "gemini",
+  "notifications": true,
+  "pickerGrouping": "grouped",
+  "showTips": false,
+  "useTerminalCursor": true,
+  "verbosity": "high",
+  "permissions": {
+    "allow": [
+      "command(ls)",
+      "command(pwd)",
+      "command(cat)",
+      "command(head)",
+      "command(tail)",
+      "command(wc)",
+      "command(grep)",
+      "command(cut)",
+      "command(sort)",
+      "command(uniq)",
+      "command(diff)",
+      "command(file)",
+      "command(date)",
+      "command(echo)",
+      "command(du -sh *)",
+      "command(df -h)",
+      "command(ps)",
+      "command(which)",
+      "command(git status)",
+      "command(git diff)",
+      "command(git log *)",
+      "command(python3 --version)",
+      "command(termux-wake-lock)",
+      "command(termux-wake-unlock)"
+    ]
+  },
+  "trustedWorkspaces": [
+    "/data/data/com.termux/files/home",
+    "/data/user/0/com.termux/files/home"
+  ]
+}
