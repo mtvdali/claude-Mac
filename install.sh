@@ -108,8 +108,14 @@ PY
   for f in settings.local.json policy-limits.json CLAUDE.md statusline.py theme.py statusline-fast.sh api-key-helper.sh; do
     put "$SRC_CLAUDE/$f" "$CLAUDE_DIR/$f"
   done
-  [ -d "$SRC_CLAUDE/commands" ] && run "mkdir -p '$CLAUDE_DIR/commands'" && run "cp -p '$SRC_CLAUDE'/commands/*.md '$CLAUDE_DIR/commands/'" && say "  + commands/*.md"
-  [ -d "$SRC_CLAUDE/themes" ] && run "mkdir -p '$CLAUDE_DIR/themes'" && run "cp -p '$SRC_CLAUDE'/themes/*.json '$CLAUDE_DIR/themes/'" && say "  + themes/*.json"
+  if [ -d "$SRC_CLAUDE/commands" ]; then
+    run "mkdir -p '$CLAUDE_DIR/commands'"
+    for f in "$SRC_CLAUDE"/commands/*.md; do put "$f" "$CLAUDE_DIR/commands/$(basename "$f")"; done
+  fi
+  if [ -d "$SRC_CLAUDE/themes" ]; then
+    run "mkdir -p '$CLAUDE_DIR/themes'"
+    for f in "$SRC_CLAUDE"/themes/*.json; do put "$f" "$CLAUDE_DIR/themes/$(basename "$f")"; done
+  fi
   [ -f "$CLAUDE_DIR/api-key-helper.sh" ] && run "chmod 700 '$CLAUDE_DIR/api-key-helper.sh'"
   run "mkdir -p '$CLAUDE_DIR/.secrets'" && run "chmod 700 '$CLAUDE_DIR/.secrets'"
 fi
