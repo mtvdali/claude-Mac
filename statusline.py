@@ -9,7 +9,8 @@ Claude Code 状态栏 (statusLine) —— 参考 CodeWhale 的 /statusline 芯�
   · 成本/时长 —— statusLine 从 stdin 传入的 JSON
   · 轮次/token/缓存/工具耗时 —— 增量解析 transcript JSONL（按 message.id 去重）
 
-价格：改 ~/.claude/statusline-prices.json（人民币 / 百万 token），不存在则用内置默认值。
+价格：改 ~/.claude/statusline-prices.json（人民币 / 百万 token，填**峰价**），
+      不存在则用内置默认值；谷时段的 token 自动按 0.5 倍计价。
 """
 
 import json
@@ -17,18 +18,34 @@ import os
 import re
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 HOME = os.path.expanduser("~")
 CACHE_DIR = os.path.join(HOME, ".claude", ".statusline-cache")
 PRICES_FILE = os.path.join(HOME, ".claude", "statusline-prices.json")
 
-# 内置默认价（¥ / 百万 token）。务必按你实际走的渠道核对后覆盖。
+# 内置默认价（¥ / 百万 token，**峰价**）。务必按你实际走的渠道核对后覆盖。
 # 键为模型 id 前缀，最长匹配优先。
+#
+# ⚠️ 命中价别按官方 Anthropic 价填：走 DeepSeek 时命中价是未命中价的 1/50。
+#    这里与手机端 ~/bin/网关/计价.py（已用官方账单反算核对）保持同一份口径：
+#      flash 峰 0.04 / 2.0 / 8.0，谷 0.02 / 1.0 / 4.0
+#      pro   峰 0.30 / 9.0 / 27.0，谷 0.15 / 4.5 / 13.5
+#    DeepSeek 的谷价恰好是峰价的一半，所以只存峰价、按峰谷分桶后谷桶 ×0.5。
 DEFAULT_PRICES = {
-    "deepseek": {"cache_hit": 0.5, "cache_miss": 2.0, "output": 8.0},
-    "_default": {"cache_hit": 0.5, "cache_miss": 2.0, "output": 8.0},
+    # UI 显示名是官方 Claude 名，实际请求被 DeepSeek 映射到 deepseek-flash，
+    # 所以这里必须按 flash 价计（claude-opus* 才会被映射到 v4-pro，别用）。
+    "claude-sonnet-5-5": {"cache_hit": 0.04, "cache_miss": 2.0, "output": 8.0},
+    "deepseek-v4-pro": {"cache_hit": 0.30, "cache_miss": 9.0, "output": 27.0},
+    "deepseek-v4-flash": {"cache_hit": 0.04, "cache_miss": 2.0, "output": 8.0},
+    "deepseek": {"cache_hit": 0.04, "cache_miss": 2.0, "output": 8.0},
+    "_default": {"cache_hit": 0.04, "cache_miss": 2.0, "output": 8.0},
 }
+
+# 峰谷规则（与计价.py 一致）：北京时间 09:00–12:00 + 14:00–18:00 为峰，
+# 周六周日全天为谷。谷价 = 峰价 × 0.5。
+BEIJING = timezone(timedelta(hours=8))
+VALLEY_FACTOR = 0.5
 
 # 汇率：仅当只能拿到美元成本时用于兜底换算
 USD_CNY = 7.1
@@ -70,6 +87,20 @@ def parse_ts(ts):
         return None
 
 
+def is_peak(ts):
+    """按北京时间判断峰/谷。无时间戳时按当前时刻。
+
+    周六、周日全天算谷；工作日只有 09:00–12:00 和 14:00–18:00 是峰。
+    """
+    t = ts or datetime.now(timezone.utc)
+    if t.tzinfo is None:                      # transcript 里偶尔是 naive 时间
+        t = t.replace(tzinfo=timezone.utc)
+    t = t.astimezone(BEIJING)
+    if t.weekday() >= 5:
+        return False
+    return 9 <= t.hour < 12 or 14 <= t.hour < 18
+
+
 def load_prices():
     prices = dict(DEFAULT_PRICES)
     try:
@@ -106,6 +137,10 @@ def new_state():
         "tool_ms": 0.0,
         "pending": {},     # tool_use_id -> 起始时间戳
         "seen_ids": [],    # 最近见过的 message.id（去重用）
+        # 按峰/谷分桶：DeepSeek 谷价 = 峰价的一半，逐条按记录时间归属，
+        # 这样跨峰谷的会话也能算对（只看「当前时刻」会把整段错算成一档）。
+        "peak": {"in": 0, "r": 0, "c": 0, "out": 0},
+        "valley": {"in": 0, "r": 0, "c": 0, "out": 0},
     }
 
 
@@ -144,11 +179,20 @@ def ingest(rec, st):
                 if len(seen) > 800:
                     del seen[:400]
                 usage = msg.get("usage") or {}
-                st["in_tok"] += usage.get("input_tokens") or 0
-                st["cache_r"] += usage.get("cache_read_input_tokens") or 0
-                st["cache_c"] += usage.get("cache_creation_input_tokens") or 0
-                st["out_tok"] += usage.get("output_tokens") or 0
+                u_in = usage.get("input_tokens") or 0
+                u_r = usage.get("cache_read_input_tokens") or 0
+                u_c = usage.get("cache_creation_input_tokens") or 0
+                u_out = usage.get("output_tokens") or 0
+                st["in_tok"] += u_in
+                st["cache_r"] += u_r
+                st["cache_c"] += u_c
+                st["out_tok"] += u_out
                 st["api_reqs"] += 1
+                bucket = st["peak" if is_peak(ts) else "valley"]
+                bucket["in"] += u_in
+                bucket["r"] += u_r
+                bucket["c"] += u_c
+                bucket["out"] += u_out
 
         content = msg.get("content")
         if isinstance(content, list) and ts:
@@ -175,6 +219,22 @@ def analyze(tpath):
                              for k, v in (st.get("pending") or {}).items()}
     except Exception:
         pass
+
+    # 老缓存文件里只有汇总 token、没有峰谷分桶。把汇总值按 transcript 的
+    # 最后修改时刻一次性归桶（近似），否则历史会话会突然变成 ¥0。
+    for key in ("peak", "valley"):
+        st.setdefault(key, {"in": 0, "r": 0, "c": 0, "out": 0})
+    empty_buckets = not any(st[k][f] for k in ("peak", "valley")
+                            for f in ("in", "r", "c", "out"))
+    legacy = (st.get("in_tok") or 0, st.get("cache_r") or 0,
+              st.get("cache_c") or 0, st.get("out_tok") or 0)
+    if empty_buckets and any(legacy):
+        try:
+            legacy_ts = datetime.fromtimestamp(os.path.getmtime(tpath), timezone.utc)
+        except Exception:
+            legacy_ts = None
+        b = st["peak" if is_peak(legacy_ts) else "valley"]
+        b["in"], b["r"], b["c"], b["out"] = legacy
 
     try:
         size = os.path.getsize(tpath)
@@ -257,9 +317,13 @@ def main():
     # ---- 成本 ----
     prices = load_prices()
     p = price_for(model_id, prices)
-    cny = (st["cache_r"] / 1e6) * p["cache_hit"] \
-        + ((st["in_tok"] + st["cache_c"]) / 1e6) * p["cache_miss"] \
-        + (st["out_tok"] / 1e6) * p["output"]
+
+    def bucket_cost(b):
+        return (b["r"] / 1e6) * p["cache_hit"] \
+            + ((b["in"] + b["c"]) / 1e6) * p["cache_miss"] \
+            + (b["out"] / 1e6) * p["output"]
+
+    cny = bucket_cost(st["peak"]) + bucket_cost(st["valley"]) * VALLEY_FACTOR
 
     # 不使用 cost.total_cost_usd：它按 Anthropic 官价计，走第三方网关必然失真
     # （实测同一会话 CC 报 $2.26，按 DeepSeek 价实际约 ¥0.8，差 20 倍）
@@ -273,13 +337,16 @@ def main():
     tool_ms = st["tool_ms"]
 
     # ---- 缓存命中 ----
-    # 优先用 CC 官方的 prompt_cache.hit_ratio（覆盖全部请求），
-    # 缺失时退回自己按 transcript 累计算的值
+    # 🔴 口径与 agy 状态栏（~/bin/agy状态栏.py）严格对齐：只用 transcript 里
+    #    逐条 assistant usage 累加的 `命中 / (命中 + 未命中)`，**不再采用** CC
+    #    自报的 `prompt_cache.hit_ratio`。
+    #    原因：hit_ratio 是 CC 内部的请求级口径，和 agy 那边的 token 加权口径
+    #    对不上（实测同一会话 96.87% vs 96.97%，别的会话能差几个点）；
+    #    两块状态栏并排看时会显示两个数。
+    #    `cache_creation` 在走 DeepSeek 时恒为 0（本机实测），保留在分母里只为
+    #    兼容将来接 Anthropic 原生；agy 那边没有这一项，等价于命中 + 未命中。
     total_in = st["cache_r"] + st["in_tok"] + st["cache_c"]
     hit = (st["cache_r"] / total_in * 100) if total_in else 0
-    ratio = (data.get("prompt_cache") or {}).get("hit_ratio")
-    if isinstance(ratio, (int, float)):
-        hit = ratio * 100 if ratio <= 1 else ratio
     hit_color = "\033[32m" if hit >= 80 else ("\033[33m" if hit >= 40 else "\033[31m")
 
     # ---- 上下文占用 ----

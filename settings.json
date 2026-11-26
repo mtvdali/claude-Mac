@@ -1,22 +1,18 @@
 {
-  "autoUpdates": false,
-  "awaySummaryEnabled": false,
-  "enabledPlugins": {
-    "rust-analyzer-lsp@claude-plugins-official": true
-  },
+  "apiKeyHelper": "~/.claude/api-key-helper.sh",
   "env": {
     "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
-    "ANTHROPIC_DEFAULT_FABLE_MODEL": "deepseek-v4-flash[1m]",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-v4-flash[1m]",
-    "ANTHROPIC_DEFAULT_MODEL": "deepseek-v4-flash[1m]",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-v4-flash[1m]",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-v4-flash[1m]",
-    "ANTHROPIC_MODEL": "deepseek-v4-flash[1m]",
-    "ANTHROPIC_SMALL_FAST_MODEL": "deepseek-v4-flash[1m]",
-    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "786432",
-    "CLAUDE_CODE_SUBAGENT_MODEL": "deepseek-v4-flash[1m]"
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "claude-sonnet-5-5",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-sonnet-5-5",
+    "ANTHROPIC_DEFAULT_MODEL": "claude-sonnet-5-5",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-5-5",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-5-5",
+    "ANTHROPIC_MODEL": "claude-sonnet-5-5",
+    "ANTHROPIC_SMALL_FAST_MODEL": "claude-sonnet-5-5",
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "300000",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "claude-sonnet-5-5",
+    "CLAUDE_CODE_MAX_CONTEXT_TOKENS": "1000000"
   },
-  "language": "Chinese",
   "permissions": {
     "allow": [
       "Read",
@@ -32,8 +28,6 @@
       "Bash(~/.pyenv/versions/3.11.0/bin/python3 ~/Desktop/Discord自动聊天/配频道.py)",
       "Bash(ssh -i ~/.ssh/<私钥> root@<服务器IP> *)"
     ],
-    "ask": [],
-    "defaultMode": "acceptEdits",
     "deny": [
       "Bash(rm -rf /)",
       "Bash(rm -rf /*)",
@@ -56,22 +50,20 @@
       "Bash(open https*)",
       "Bash(open -a Safari*)",
       "WebSearch"
-    ]
+    ],
+    "ask": [],
+    "defaultMode": "acceptEdits"
   },
-  "showThinkingSummaries": true,
-  "spinnerTipsOverride": {
-    "excludeDefault": true,
-    "tips": [
-      "输入 / 查看所有命令",
-      "按 Ctrl+K 打开命令面板",
-      "按 Esc 可中断当前生成",
-      "Shift+Tab 切换 Plan / Agent 模式",
-      "输入 @ 引用文件路径",
-      "Ctrl+R 恢复历史会话",
-      "「思考中」按 Ctrl+O 可展开查看",
-      "输入 # 可快速追加记忆"
-    ]
+  "model": "fable",
+  "statusLine": {
+    "type": "command",
+    "command": "python3 ~/.claude/statusline.py",
+    "padding": 0
   },
+  "enabledPlugins": {
+    "rust-analyzer-lsp@claude-plugins-official": true
+  },
+  "language": "Chinese",
   "spinnerVerbs": {
     "mode": "replace",
     "verbs": [
@@ -85,10 +77,20 @@
       "核对中"
     ]
   },
-  "statusLine": {
-    "command": "python3 ~/.claude/statusline.py",
-    "padding": 0,
-    "type": "command"
+  "spinnerTipsOverride": {
+    "excludeDefault": true,
+    "tips": [
+      "输入 / 查看所有命令",
+      "按 Ctrl+K 打开命令面板",
+      "按 Esc 可中断当前生成",
+      "Shift+Tab 切换 Plan / Agent 模式",
+      "输入 @ 引用文件路径",
+      "Ctrl+R 恢复历史会话",
+      "「思考中」按 Ctrl+O 可展开查看",
+      "输入 # 可快速追加记忆"
+    ]
   },
-  "apiKeyHelper": "~/.claude/api-key-helper.sh"
+  "awaySummaryEnabled": false,
+  "showThinkingSummaries": true,
+  "autoUpdates": false
 }
