@@ -9,9 +9,18 @@ git clone --depth 1 https://github.com/mtvdali/claude-Mac.git ~/claude-Mac
 bash ~/claude-Mac/install.sh          # 自动判断 macOS / Termux
 bash ~/claude-Mac/install.sh --claude # 只装 Claude
 bash ~/claude-Mac/install.sh --agy    # 只装 agy
+bash ~/claude-Mac/install.sh --dry-run      # 只看会改什么
+bash ~/claude-Mac/install.sh --force-agy    # 强制用仓库版覆盖本机 agy 授权
 ```
 
-脚本会先备份同名文件成 `*.bak.<时间戳>`，密钥永远不进仓库（见下面「凭据怎么处理」）。
+脚本的几个「不伤本机」设计：
+
+- 覆盖前一律备份成 `*.bak.<时间戳>`；内容一致的文件不动，重复跑是幂等的。
+- `settings.json` 里的 `~` 落盘时展开成绝对路径（`apiKeyHelper` / `statusLine` 对 `~` 的支持随版本变过）。
+- 仓库里的 `<私钥>` / `<服务器IP>` 占位符**不会**盖掉本机已有真实值：已有就沿用。
+- 本机 agy 授权条数比仓库多时默认保留（`= 保留本机 N 条授权`），要覆盖显式加 `--force-agy`。
+
+密钥永远不进仓库（见下面「凭据怎么处理」）。
 
 手机端（Termux）前置：`pkg install -y python git openssh`；Mac 端：`python3` 自带即可。
 
